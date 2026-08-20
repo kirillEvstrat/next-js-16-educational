@@ -4,10 +4,10 @@ import { FaRegSmile } from "react-icons/fa";
 export default function Home() {
   return (
     <div>
-      <h1 className="text-3xl text-red-200">gfdfgjgf</h1>
+      <h1 className="text-3xl text-red-200">Header</h1>
       <Link className={"rounded-2xl"} href={"/members"}>
         <FaRegSmile />
-        go to members section
+        <Button>go to members section</Button>
       </Link>
     </div>
   );

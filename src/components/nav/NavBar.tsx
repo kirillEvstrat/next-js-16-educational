@@ -3,6 +3,8 @@ import Link from "next/link";
 import React from "react";
 import { GiMatchTip } from "react-icons/gi";
 import NavLink from "./NavLink";
+import { getCurrentUser } from "@/lib/auth";
+import { UserMenu } from "./UserMenu";
 
 const navLinks = [
   { name: "Members", href: "/members" },
@@ -12,7 +14,9 @@ const navLinks = [
   // Add more links as needed
 ];
 
-export default function NavBar() {
+export default async function NavBar() {
+  const user = await getCurrentUser();
+
   return (
     <header className="p-3 w-full fixed top-0 z-index-50 bg-gray-800 text-white">
       <div className="flex justify-between items-center px-1 gap-6">
@@ -29,18 +33,24 @@ export default function NavBar() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={"/login"}
-            className={buttonVariants({ variant: "primary" })}
-          >
-            Login
-          </Link>
-          <Link
-            href={"/register"}
-            className={buttonVariants({ variant: "secondary" })}
-          >
-            Register
-          </Link>
+          {!!user ? (
+            <UserMenu user={user} />
+          ) : (
+            <>
+              <Link
+                href={"/login"}
+                className={buttonVariants({ variant: "primary" })}
+              >
+                Login
+              </Link>
+              <Link
+                href={"/register"}
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
