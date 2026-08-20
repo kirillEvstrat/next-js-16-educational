@@ -9,10 +9,5 @@ export default function MembersLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div className="p-3 border-2 border-red-200">
-      <h2>members section</h2>
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }

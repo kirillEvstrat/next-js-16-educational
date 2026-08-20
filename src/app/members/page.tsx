@@ -1,15 +1,15 @@
-import { getCurrentUser } from "@/lib/auth";
-import Link from "next/link";
+import { getMembers } from "@/server/actions/members";
+import MemberCard from "./MemberCard";
 
 export default async function MembersPage() {
-  const user = await getCurrentUser();
+  const members = await getMembers();
 
   return (
     <div>
-      <h3 className="text-2xl">header</h3>
-      <Link href={"/"}>go back home</Link>
-      <div>
-        {user ? <pre>{JSON.stringify(user, null, 2)}</pre> : "No logged in"}
+      <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {members?.map((member) => (
+          <MemberCard key={member.id} member={member} />
+        ))}
       </div>
     </div>
   );
