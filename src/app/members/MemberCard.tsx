@@ -4,13 +4,16 @@ import Image from "next/image";
 import { Member } from "../../../generated/prisma/client";
 import { Card, CardFooter } from "@heroui/react";
 import { calculateAge } from "@/lib/utils";
+import LikeButton from "@/components/LikeButton";
 
 type Props = {
   member: Member;
+  likeIds: string[];
 };
 
-export default function MemberCard({ member }: Props) {
+export default function MemberCard({ member, likeIds }: Props) {
   const imageSrc = member?.image ?? "/images/user.png";
+  const hasLiked = likeIds.includes(member.userID);
 
   return (
     <Link href={`/members/${member.userID}`}>
@@ -25,6 +28,9 @@ export default function MemberCard({ member }: Props) {
           unoptimized
           loading="eager"
         />
+        <div className="absolute top-3 right-3 z-50">
+          <LikeButton targetUserId={member.userID} hasLiked={hasLiked} />
+        </div>
         <CardFooter className="flex w-full z-50 justify-start absolute bottom-0 bg-linear-gradient-to-t from-black/80 to-transparent p-2">
           <div className="flex flex-col text-white p-2">
             <h3 className="font-semibold">

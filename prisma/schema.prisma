@@ -87,6 +87,8 @@ model Member {
   image String?
   user User @relation(fields: [userID], references: [id], onDelete: Cascade)
   photos Photo[]
+  sourceLikes Like[] @relation("SourceMemberLikes")
+  targetLikes Like[] @relation("TargetMemberLikes")
 }
 
 model Photo {
@@ -95,4 +97,14 @@ model Photo {
   publicId String?
   memberId String
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+
+model Like {
+  sourceUserId String
+  sourceMember Member @relation("SourceMemberLikes", fields: [sourceUserId], references: [userID], onDelete: Cascade)
+  targetUserId String
+  targetMember Member @relation("TargetMemberLikes", fields: [targetUserId], references: [userID], onDelete: Cascade)
+
+  @@id([sourceUserId, targetUserId])
 }
