@@ -34,7 +34,7 @@ export default async function NavBar() {
         </div>
         <div className="flex items-center gap-2">
           {!!user ? (
-            <UserMenu user={user} />
+            <UserMenu user={{ ...user, image: user.image ?? null }} />
           ) : (
             <>
               <Link

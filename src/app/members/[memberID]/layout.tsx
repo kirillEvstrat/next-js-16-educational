@@ -7,6 +7,13 @@ import { calculateAge } from "@/lib/utils";
 import Link from "next/link";
 import MemberNav from "./MemberNav";
 import SectionTitle from "./SectionTitle";
+import { getCurrentUser } from "@/lib/auth";
+
+export const sections = [
+  { name: "Profile", path: "" },
+  { name: "Photos", path: "/photos" },
+  { name: "Chat", path: "/chat" },
+];
 
 export default async function Layout({
   children,
@@ -17,6 +24,8 @@ export default async function Layout({
 }>) {
   const { memberID } = await params;
   const member = await getMemberById(memberID);
+  const currentUser = await getCurrentUser();
+  const isCurrentUser = currentUser?.id === memberID;
 
   if (!member) {
     return notFound();
@@ -45,7 +54,14 @@ export default async function Layout({
               </div>
             </div>
             <Separator />
-            <MemberNav userId={member.userID} />
+            <MemberNav
+              userId={member.userID}
+              sections={
+                isCurrentUser
+                  ? sections.filter((section) => section.path !== "/chat")
+                  : sections
+              }
+            />
           </Card.Content>
           <Card.Footer className="flex w-full z-50 justify-center absolute bottom-0 bg-linear-gradient-to-t from-black/80 to-transparent p-2">
             <Link
@@ -63,7 +79,7 @@ export default async function Layout({
       <div className="col-span-9">
         <Card className="w-full mt-10 h-[80vh]">
           <Card.Header>
-            <SectionTitle />
+            <SectionTitle sections={sections} isOwner={isCurrentUser} />
           </Card.Header>
           <Separator />
           <Card.Content>{children}</Card.Content>

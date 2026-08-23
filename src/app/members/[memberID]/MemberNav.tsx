@@ -3,13 +3,12 @@ import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import React from "react";
 
-export const sections = [
-  { name: "Profile", path: "" },
-  { name: "Photos", path: "/photos" },
-  { name: "Chat", path: "/chat" },
-];
+type Props = {
+  userId: string;
+  sections: { name: string; path: string }[];
+};
 
-export default function MemberNav({ userId }: { userId: string }) {
+export default function MemberNav({ userId, sections }: Props) {
   const active = useSelectedLayoutSegment();
   const base = `/members/${userId}`;
 
