@@ -15,6 +15,7 @@
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "better-auth": "^1.7.0",
+    "classnames": "^2.5.1",
     "cloudinary": "^2.10.1",
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",

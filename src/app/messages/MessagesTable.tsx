@@ -1,0 +1,152 @@
+"use client";
+
+import React, { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar, Button, Table, toast } from "@heroui/react";
+import { AiFillDelete } from "react-icons/ai";
+import Link from "next/link";
+import { deleteMessage } from "@/server/actions/messages";
+
+type MessageRow = {
+  id: string;
+  text: string;
+  created: string;
+  dateRead: string | null;
+  senderId: string;
+  senderName: string;
+  senderImage: string | null;
+  recipientId: string;
+  recipientName: string;
+  recipientImage: string | null;
+};
+
+type Props = {
+  messages: MessageRow[];
+  activeContainer: "inbox" | "outbox";
+  currentUserId: string;
+};
+
+export default function MessagesTable({
+  messages,
+  activeContainer,
+  currentUserId,
+}: Props) {
+  const counterpartLabel =
+    activeContainer === "outbox" ? "Recipient" : "Sender";
+  const [isDeleting, startDeleting] = useTransition();
+  const router = useRouter();
+
+  const handleDeleteMessage = (messageId: string) => {
+    startDeleting(async () => {
+      const res = await deleteMessage(messageId, activeContainer === "outbox");
+      if (res.status === "error") {
+        toast.danger(res.error as string);
+      }
+      router.refresh();
+    });
+  };
+
+  if (!messages.length) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center p-4">
+        <p className="text-sm text-foreground/60">
+          No messages in this container yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full min-h-0 overflow-y-auto p-4">
+      <Table>
+        <Table.Content aria-label="Messages table" className="min-w-full">
+          <Table.Header>
+            <Table.Column isRowHeader>{counterpartLabel}</Table.Column>
+            <Table.Column>Message</Table.Column>
+            <Table.Column>Date</Table.Column>
+            <Table.Column className="w-14 text-center"> </Table.Column>
+          </Table.Header>
+
+          <Table.Body>
+            {messages.map((message) => {
+              const isOutgoing = message.senderId === currentUserId;
+              const counterpartId = isOutgoing
+                ? message.recipientId
+                : message.senderId;
+              const counterpartName = isOutgoing
+                ? message.recipientName
+                : message.senderName;
+              const counterpartImage = isOutgoing
+                ? message.recipientImage
+                : message.senderImage;
+              const chatHref = `/members/${counterpartId}/chat`;
+              const isUnreadIncoming =
+                activeContainer === "inbox" && message.dateRead === null;
+
+              return (
+                <Table.Row
+                  key={message.id}
+                  className={`cursor-pointer hover:bg-content2/60 ${isUnreadIncoming ? "bg-warning-50/80" : ""}`}
+                >
+                  <Table.Cell>
+                    <Link href={chatHref} className="block w-full">
+                      <div className="flex items-center gap-3">
+                        <Avatar size="sm">
+                          <Avatar.Image
+                            alt={counterpartName || "User"}
+                            src={counterpartImage || "/images/user.png"}
+                          />
+                        </Avatar>
+                        <span
+                          className={`${isUnreadIncoming ? "font-semibold text-foreground" : "font-medium"}`}
+                        >
+                          {counterpartName}
+                        </span>
+                      </div>
+                    </Link>
+                  </Table.Cell>
+
+                  <Table.Cell>
+                    <Link href={chatHref} className="block w-full">
+                      <p
+                        className={`line-clamp-2 text-sm ${isUnreadIncoming ? "font-semibold text-foreground" : "text-foreground/80"}`}
+                      >
+                        {message.text}
+                      </p>
+                    </Link>
+                  </Table.Cell>
+
+                  <Table.Cell>
+                    <Link href={chatHref} className="block w-full">
+                      <div className="flex flex-col gap-1 text-xs text-foreground/60">
+                        <span>{message.created}</span>
+                        {activeContainer === "outbox" && (
+                          <span>{message.dateRead ? "Read" : "Sent"}</span>
+                        )}
+                      </div>
+                    </Link>
+                  </Table.Cell>
+
+                  <Table.Cell>
+                    <div className="flex justify-center">
+                      <Button
+                        isIconOnly
+                        isPending={isDeleting}
+                        size="sm"
+                        variant="danger-soft"
+                        aria-label="Delete message"
+                        onClick={() => handleDeleteMessage(message.id)}
+                      >
+                        <AiFillDelete size={14} />
+                      </Button>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Content>
+      </Table>
+    </div>
+  );
+}

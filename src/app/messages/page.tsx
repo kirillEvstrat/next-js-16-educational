@@ -1,5 +1,17 @@
-import React from "react";
+import { getMessagesByContainer } from "@/server/actions/messages";
+import { requireAuthUser } from "@/lib/auth";
+import MessagesTable from "./MessagesTable";
 
-export default function page() {
-  return <div>message</div>;
+export default async function page(props: PageProps<"/messages">) {
+  const { container } = await props.searchParams;
+  const activeContainer = container === "outbox" ? "outbox" : "inbox";
+  const currentUser = await requireAuthUser();
+  const messages = await getMessagesByContainer(activeContainer);
+  return (
+    <MessagesTable
+      messages={messages}
+      activeContainer={activeContainer}
+      currentUserId={currentUser.id}
+    />
+  );
 }

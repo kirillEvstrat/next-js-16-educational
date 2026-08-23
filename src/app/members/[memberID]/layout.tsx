@@ -76,13 +76,15 @@ export default async function Layout({
           </Card.Footer>
         </Card>
       </div>
-      <div className="col-span-9">
-        <Card className="w-full mt-10 h-[80vh]">
-          <Card.Header>
+      <div className="col-span-9 min-h-0">
+        <Card className="w-full mt-10 h-[80vh] flex flex-col overflow-hidden">
+          <Card.Header className="shrink-0">
             <SectionTitle sections={sections} isOwner={isCurrentUser} />
           </Card.Header>
-          <Separator />
-          <Card.Content>{children}</Card.Content>
+          <Separator className="shrink-0" />
+          <Card.Content className="flex-1 min-h-0 overflow-hidden p-0">
+            {children}
+          </Card.Content>
         </Card>
       </div>
     </div>
