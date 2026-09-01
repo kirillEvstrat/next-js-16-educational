@@ -5,6 +5,7 @@ import { PrismaClient } from "../../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { headers } from "next/headers";
 import { nextCookies } from "better-auth/next-js";
+import { User } from "../../generated/prisma/browser";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -26,7 +27,7 @@ export async function getCurrentUser() {
   return session?.user;
 }
 
-export async function requireAuthUser() {
+export async function requireAuthUser(): Promise<User> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -35,5 +36,8 @@ export async function requireAuthUser() {
     throw new Error("User is not authenticated");
   }
 
-  return session.user;
+  return {
+    ...session.user,
+    image: session.user.image ?? null,
+  };
 }

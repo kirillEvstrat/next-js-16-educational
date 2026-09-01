@@ -1,6 +1,7 @@
 "use server";
 import { requireAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { pusherServer } from "@/lib/pusher";
 import { revalidatePath } from "next/cache";
 
 export async function toggleLikeMember(targetUserId: string, isLiked: boolean) {
@@ -23,6 +24,8 @@ export async function toggleLikeMember(targetUserId: string, isLiked: boolean) {
           targetUserId,
         },
       });
+
+      await pusherServer.trigger("private-" + targetUserId, "like:new", user);
     }
 
     revalidatePath("/members");

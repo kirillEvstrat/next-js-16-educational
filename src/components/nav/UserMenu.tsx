@@ -1,6 +1,6 @@
 "use client";
 import { Avatar, Dropdown, Label, Separator } from "@heroui/react";
-import { User } from "../../../generated/prisma/client";
+import { User } from "../../../generated/prisma/browser";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";

@@ -9,7 +9,8 @@ export default async function page(props: PageProps<"/messages">) {
   const messages = await getMessagesByContainer(activeContainer);
   return (
     <MessagesTable
-      messages={messages}
+      key={activeContainer}
+      initialMessages={messages}
       activeContainer={activeContainer}
       currentUserId={currentUser.id}
     />

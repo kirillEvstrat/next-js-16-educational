@@ -1,6 +1,5 @@
 import { MessageWithSenderRecipient } from "./types";
 import type { MessageDto } from "./types";
-import { formatShortDateTime } from "./utils";
 
 export function mapMessageToMessageDTO(
   message: MessageWithSenderRecipient,
@@ -8,8 +7,8 @@ export function mapMessageToMessageDTO(
   return {
     id: message.id,
     text: message.text,
-    created: formatShortDateTime(message.createdAt),
-    dateRead: message.dateRead ? formatShortDateTime(message.dateRead) : null,
+    created: message.createdAt.toISOString(),
+    dateRead: message.dateRead ? message.dateRead.toISOString() : null,
     senderId: message.sender.userID,
     senderName: message.sender.name,
     senderImage: message.sender.image,

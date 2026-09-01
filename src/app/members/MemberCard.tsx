@@ -1,10 +1,11 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
-import { Member } from "../../../generated/prisma/client";
+import { Member } from "../../../generated/prisma/browser";
 import { Card, CardFooter } from "@heroui/react";
 import { calculateAge } from "@/lib/utils";
 import LikeButton from "@/components/LikeButton";
+import PresenceDot from "@/components/PresenceDot";
 
 type Props = {
   member: Member;
@@ -30,6 +31,9 @@ export default function MemberCard({ member, likeIds }: Props) {
         />
         <div className="absolute top-3 right-3 z-50">
           <LikeButton targetUserId={member.userID} hasLiked={hasLiked} />
+        </div>
+        <div className="absolute top-2 left-3 z-50">
+          <PresenceDot member={member} />
         </div>
         <CardFooter className="flex w-full z-50 justify-start absolute bottom-0 bg-linear-gradient-to-t from-black/80 to-transparent p-2">
           <div className="flex flex-col text-white p-2">

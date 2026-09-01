@@ -6,7 +6,6 @@ import {
   type ProfileEditSchema,
 } from "@/lib/schema/profileEditSchema";
 import { ActionResults } from "@/lib/types";
-import { ActionResults } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { cache } from "react";
 import { Member, Photo } from "../../../generated/prisma/client";

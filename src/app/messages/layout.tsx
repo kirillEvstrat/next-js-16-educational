@@ -16,7 +16,7 @@ export default async function MessagesLayout(props: LayoutProps<"/messages">) {
           </Card.Header>
           <Separator />
           <Card.Content className="p-0">
-            <MessagesNav counts={counts} />
+            <MessagesNav />
           </Card.Content>
         </Card>
       </div>

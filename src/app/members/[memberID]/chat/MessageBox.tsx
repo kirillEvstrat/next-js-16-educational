@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import type { MessageDto } from "@/lib/types";
 import { Avatar } from "@heroui/react";
 import classnames from "classnames";
+import { timeAgo } from "@/lib/utils";
 
 type Props = {
   message: MessageDto;
@@ -12,7 +13,9 @@ type Props = {
 
 export default function MessageBox({ message, currentUserId }: Props) {
   const isCurrentUserSender = message.senderId === currentUserId;
-  const messageStatus = message.dateRead ? `Read ${message.dateRead}` : "Sent";
+  const messageStatus = message.dateRead
+    ? `Read ${timeAgo(message.dateRead)}`
+    : "Sent";
   const displayName = isCurrentUserSender ? "You" : message.senderName;
   const avatarAlt = message.senderName || "Sender";
   const avatarSrc = message.senderImage || "/images/user.png";

@@ -4,26 +4,21 @@ import { Spinner } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState, useTransition } from "react";
 import classNames from "classnames";
-
-type Props = {
-  counts: {
-    inbox: number;
-    outbox: number;
-  };
-};
+import { useMessageStore } from "@/lib/hooks/useMessageStore";
 
 const containers = [
   { label: "Inbox", value: "inbox" as const },
   { label: "Outbox", value: "outbox" as const },
 ];
 
-export default function MessagesNav({ counts }: Props) {
+export default function MessagesNav() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeContainer = searchParams.get("container") ?? "inbox";
   const [isPending, startTransition] = useTransition();
   const [pendingContainer, setPendingContainer] = useState<string | null>(null);
+  const unreadCount = useMessageStore((store) => store.unreadCount);
 
   useEffect(() => {
     if (!isPending) {
@@ -44,8 +39,6 @@ export default function MessagesNav({ counts }: Props) {
     <nav className="flex flex-col gap-2 p-4">
       {containers.map((container) => {
         const isActive = activeContainer === container.value;
-        const count =
-          container.value === "inbox" ? counts.inbox : counts.outbox;
         const isCurrentPending =
           isPending && pendingContainer === container.value;
 
@@ -66,23 +59,25 @@ export default function MessagesNav({ counts }: Props) {
             )}
           >
             <span className="font-medium">{container.label}</span>
-            <div className="flex min-w-7 items-center justify-center">
-              {isCurrentPending ? (
-                <Spinner color="accent" size="sm" />
-              ) : (
-                <span
-                  className={classNames(
-                    "min-w-7 rounded-full px-2 py-0.5 text-center text-xs font-semibold",
-                    {
-                      "bg-accent text-white": isActive,
-                      "bg-content3 text-foreground/70": !isActive,
-                    },
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </div>
+            {container.value === "inbox" && (
+              <div className="flex min-w-7 items-center justify-center">
+                {isCurrentPending ? (
+                  <Spinner color="accent" size="sm" />
+                ) : (
+                  <span
+                    className={classNames(
+                      "min-w-7 rounded-full px-2 py-0.5 text-center text-xs font-semibold",
+                      {
+                        "bg-accent text-white": isActive,
+                        "bg-content3 text-foreground/70": !isActive,
+                      },
+                    )}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+            )}
           </button>
         );
       })}

@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useRef, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button, Table, toast } from "@heroui/react";
 import { AiFillDelete } from "react-icons/ai";
 import Link from "next/link";
 import { deleteMessage } from "@/server/actions/messages";
+import PresenceAvatar from "@/components/PresenceAvatar";
+import { useMessageStore } from "@/lib/hooks/useMessageStore";
+import { useShallow } from "zustand/shallow";
+import { MessageDto } from "@/lib/types";
+import { formatShortDateTime } from "@/lib/utils";
 
 type MessageRow = {
   id: string;
@@ -21,13 +26,13 @@ type MessageRow = {
 };
 
 type Props = {
-  messages: MessageRow[];
+  initialMessages: MessageRow[];
   activeContainer: "inbox" | "outbox";
   currentUserId: string;
 };
 
 export default function MessagesTable({
-  messages,
+  initialMessages,
   activeContainer,
   currentUserId,
 }: Props) {
@@ -35,12 +40,35 @@ export default function MessagesTable({
     activeContainer === "outbox" ? "Recipient" : "Sender";
   const [isDeleting, startDeleting] = useTransition();
   const router = useRouter();
+  const initMessages = useRef(initialMessages);
 
-  const handleDeleteMessage = (messageId: string) => {
+  const { set, remove, messages, updateUnreadCount } = useMessageStore(
+    useShallow((state) => ({
+      set: state.set,
+      remove: state.remove,
+      messages: state.messages,
+      updateUnreadCount: state.updateUnreadCount,
+    })),
+  );
+
+  useEffect(() => {
+    set(initMessages.current);
+
+    return () => {
+      set([]);
+    };
+  }, [set, activeContainer]);
+
+  const handleDeleteMessage = (message: MessageDto) => {
     startDeleting(async () => {
-      const res = await deleteMessage(messageId, activeContainer === "outbox");
+      const res = await deleteMessage(message.id, activeContainer === "outbox");
       if (res.status === "error") {
         toast.danger(res.error as string);
+      } else {
+        remove(message.id);
+        if (!message.dateRead && activeContainer === "inbox") {
+          updateUnreadCount(-1);
+        }
       }
       router.refresh();
     });
@@ -91,12 +119,10 @@ export default function MessagesTable({
                   <Table.Cell>
                     <Link href={chatHref} className="block w-full">
                       <div className="flex items-center gap-3">
-                        <Avatar size="sm">
-                          <Avatar.Image
-                            alt={counterpartName || "User"}
-                            src={counterpartImage || "/images/user.png"}
-                          />
-                        </Avatar>
+                        <PresenceAvatar
+                          userId={counterpartId}
+                          src={counterpartImage}
+                        />
                         <span
                           className={`${isUnreadIncoming ? "font-semibold text-foreground" : "font-medium"}`}
                         >
@@ -119,7 +145,9 @@ export default function MessagesTable({
                   <Table.Cell>
                     <Link href={chatHref} className="block w-full">
                       <div className="flex flex-col gap-1 text-xs text-foreground/60">
-                        <span>{message.created}</span>
+                        <span>
+                          {formatShortDateTime(new Date(message.created))}
+                        </span>
                         {activeContainer === "outbox" && (
                           <span>{message.dateRead ? "Read" : "Sent"}</span>
                         )}
@@ -135,7 +163,7 @@ export default function MessagesTable({
                         size="sm"
                         variant="danger-soft"
                         aria-label="Delete message"
-                        onClick={() => handleDeleteMessage(message.id)}
+                        onClick={() => handleDeleteMessage(message)}
                       >
                         <AiFillDelete size={14} />
                       </Button>

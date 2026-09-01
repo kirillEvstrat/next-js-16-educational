@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Photo } from "../../generated/prisma/client";
+import { Photo } from "../../generated/prisma/browser";
 import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 

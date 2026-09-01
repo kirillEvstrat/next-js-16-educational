@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Spinner, Tabs } from "@heroui/react";
-import { Member } from "../../../generated/prisma/client";
+import { Member } from "../../../generated/prisma/browser";
 import MemberCard from "../members/MemberCard";
 import { useTransition } from "react";
 

@@ -1,17 +1,19 @@
 "use server";
 import { chatSchema, ChatSchema } from "@/lib/schema/chatSchema";
 import { ActionResults } from "@/lib/types";
-import { Message } from "../../../generated/prisma/client";
+import type { MessageDto } from "@/lib/types";
 import { requireAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { mapMessageToMessageDTO } from "@/lib/mappings";
-import { handlePrismaError } from "@/lib/utils";
+import { handlePrismaError } from "@/lib/server-utils";
+import { createChatId } from "@/lib/utils";
+import { pusherServer } from "@/lib/pusher";
 
 export async function createMessage(
   recipientUserId: string,
   data: ChatSchema,
-): Promise<ActionResults<Message>> {
+): Promise<ActionResults<MessageDto>> {
   try {
     const user = await requireAuthUser();
 
@@ -28,11 +30,26 @@ export async function createMessage(
         recipientId: recipientUserId,
         senderId: user.id,
       },
+      select: messageSelect,
+    });
+
+    const messageDTO = mapMessageToMessageDTO(message);
+
+    await pusherServer.trigger(
+      createChatId(user.id, recipientUserId),
+      "message:new",
+      {
+        message: messageDTO,
+      },
+    );
+
+    await pusherServer.trigger("private-" + recipientUserId, "message:new", {
+      message: messageDTO,
     });
 
     revalidatePath(`/members/${recipientUserId}/chat`);
 
-    return { status: "success", data: message };
+    return { status: "success", data: messageDTO };
   } catch (error) {
     return handlePrismaError(error);
   }
@@ -61,23 +78,61 @@ export async function getMessageThread(recipientUserId: string) {
       select: messageSelect,
     });
 
+    let readCount = 0;
+
     if (messages.length > 0) {
+      const readMessageIds = messages
+        .filter(
+          (m) =>
+            m.dateRead === null &&
+            m.recipient?.userID === user.id &&
+            m.sender?.userID === recipientUserId,
+        )
+        .map((m) => m.id);
+
       await prisma.message.updateMany({
-        where: {
-          senderId: recipientUserId,
-          recipientId: user.id,
-          dateRead: null,
-        },
+        where: { id: { in: readMessageIds } },
         data: {
           dateRead: new Date(),
         },
       });
+
+      await pusherServer.trigger(
+        createChatId(recipientUserId, user.id),
+        "messages:read",
+        readMessageIds,
+      );
+
+      readCount = readMessageIds.length;
     }
 
-    return messages.map((message) => mapMessageToMessageDTO(message));
+    return {
+      messages: messages.map((message) => mapMessageToMessageDTO(message)),
+      readCount,
+    };
   } catch (error) {
-    return handlePrismaError(error);
+    throw error;
   }
+}
+
+export async function markMessagesAsRead(
+  messageIds: string[],
+  senderId: string,
+) {
+  const user = await requireAuthUser();
+
+  await prisma.message.updateMany({
+    where: { id: { in: messageIds } },
+    data: {
+      dateRead: new Date(),
+    },
+  });
+
+  await pusherServer.trigger(
+    createChatId(senderId, user.id),
+    "messages:read",
+    messageIds,
+  );
 }
 
 export async function getMessagesByContainer(container: string = "inbox") {
@@ -98,7 +153,7 @@ export async function getMessagesByContainer(container: string = "inbox") {
 
     return messages.map((message) => mapMessageToMessageDTO(message));
   } catch (error) {
-    return handlePrismaError(error);
+    throw error;
   }
 }
 
@@ -188,5 +243,21 @@ export async function deleteMessage(
     return { status: "success", data: undefined };
   } catch (error) {
     return handlePrismaError(error);
+  }
+}
+
+export async function getUnreadMessageCount(): Promise<number> {
+  try {
+    const user = await requireAuthUser();
+    const count = await prisma.message.count({
+      where: {
+        recipientId: user.id,
+        recipientDeleted: false,
+        dateRead: null,
+      },
+    });
+    return count;
+  } catch (error) {
+    throw error;
   }
 }
