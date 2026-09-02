@@ -20,7 +20,7 @@ export default function RootLayout({
         <Providers>
           <Toast.Provider />
           <NavBar />
-          <main className="container mx-auto mt-24">{children}</main>
+          <main className="container mx-auto mt-18">{children}</main>
         </Providers>
       </body>
     </html>

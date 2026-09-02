@@ -7,6 +7,23 @@ type ActionResults<T> =
     }
   | { status: "error"; error: string | $ZodIssue[] };
 
+type UserFilters = {
+  ageRange: [number, number];
+  orderBy: string;
+  gender: string[];
+  withPhotos: boolean;
+} & PaginationParams;
+
+type PaginationParams = {
+  page?: number;
+  pageSize?: number;
+};
+
+type PaginatedResponce<T> = {
+  items: T[];
+  totalCount: number;
+};
+
 type MessageDto = {
   id: string;
   text: string;

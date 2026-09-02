@@ -46,7 +46,6 @@ export default function MessageList({
       setMessages((prevMessages) => [...prevMessages, message]);
 
       if (message.senderId !== currentUser.id) {
-        console.log("Marking message as read:", message.text);
         await markMessagesAsRead([message.id], message.senderId);
       }
     },

@@ -135,7 +135,11 @@ export async function markMessagesAsRead(
   );
 }
 
-export async function getMessagesByContainer(container: string = "inbox") {
+export async function getMessagesByContainer(
+  container: string = "inbox",
+  cursor?: string,
+  limit = 2,
+) {
   try {
     const user = await requireAuthUser();
 
@@ -146,12 +150,26 @@ export async function getMessagesByContainer(container: string = "inbox") {
         ...(isOutbox
           ? { senderId: user.id, senderDeleted: false }
           : { recipientId: user.id, recipientDeleted: false }),
+        ...(cursor ? { createdAt: { lte: new Date(cursor) } } : {}),
       },
       orderBy: { createdAt: "desc" },
       select: messageSelect,
+      take: limit + 1,
     });
 
-    return messages.map((message) => mapMessageToMessageDTO(message));
+    let nextCursor: string | undefined;
+
+    if (messages.length > limit) {
+      const nextMessage = messages.pop();
+      nextCursor = nextMessage?.createdAt.toISOString();
+    } else {
+      nextCursor = undefined;
+    }
+
+    return {
+      messages: messages.map((message) => mapMessageToMessageDTO(message)),
+      nextCursor,
+    };
   } catch (error) {
     throw error;
   }

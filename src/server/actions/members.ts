@@ -1,26 +1,66 @@
 "use server";
-import { getCurrentUser, requireAuthUser } from "@/lib/auth";
+import { requireAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   profileEditSchema,
   type ProfileEditSchema,
 } from "@/lib/schema/profileEditSchema";
-import { ActionResults } from "@/lib/types";
+import { ActionResults, UserFilters, PaginatedResponce } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { cache } from "react";
 import { Member, Photo } from "../../../generated/prisma/client";
 import { cloudinary } from "@/lib/cloudinary";
+import { addYears } from "date-fns";
 
-export async function getMembers() {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) return null;
+export async function getMembers(
+  params: UserFilters,
+): Promise<PaginatedResponce<Member>> {
+  const currentUser = await requireAuthUser();
+
+  const ageRange = params.ageRange?.toString()?.split(",").map(Number) || [
+    18, 100,
+  ];
+  const currentDate = new Date();
+  const minDob = addYears(currentDate, -ageRange[1]);
+  const maxDob = addYears(currentDate, -ageRange[0]);
+  const orderBySelector = params.orderBy || "updated";
+  const selectedGender = params.gender
+    ? params.gender
+        .toString()
+        .split(",")
+        .filter((g) => g !== "none")
+    : ["male", "female"];
+  const pageNumber = Number(params.page) || 1;
+  const pageSize = Number(params.pageSize) || 12;
+  const withPhotos = String(params.withPhotos) === "true";
+
+  const whereSelector = {
+    AND: [
+      { dateOfBirth: { gte: minDob, lte: maxDob } },
+      { gender: { in: selectedGender } },
+      ...(withPhotos ? [{ image: { not: null } }] : []),
+    ],
+    NOT: { userID: currentUser.id },
+  };
 
   try {
-    return prisma.member.findMany({
-      where: { NOT: { userID: currentUser.id } },
-    });
+    const [items, totalCount] = await Promise.all([
+      prisma.member.findMany({
+        where: whereSelector,
+        orderBy: {
+          [orderBySelector]: "desc",
+        },
+        skip: (pageNumber - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.member.count({
+        where: whereSelector,
+      }),
+    ]);
+    return { items, totalCount };
   } catch (error) {
     console.error("Error fetching members:", error);
+    return { items: [], totalCount: 0 };
   }
 }
 
@@ -152,4 +192,17 @@ export async function deleteImage(photo: Photo) {
     console.log(error);
     throw error;
   }
+}
+
+export async function updateLastActive() {
+  const user = await requireAuthUser();
+
+  prisma.member
+    .update({
+      where: { userID: user.id },
+      data: { updated: new Date() },
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }

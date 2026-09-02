@@ -10,6 +10,7 @@ type MessageState = {
   remove: (id: string) => void;
   set: (messages: MessageDto[]) => void;
   updateUnreadCount: (amount: number) => void;
+  resetMessages: () => void;
 };
 
 export const useMessageStore = create<MessageState>()(
@@ -31,13 +32,29 @@ export const useMessageStore = create<MessageState>()(
           false,
           "message/remove",
         ),
-      set: (messages: MessageDto[]) => set({ messages }, false, "message/set"),
+      set: (messages: MessageDto[]) =>
+        set(
+          (state) => {
+            const map = new Map(
+              [...state.messages, ...messages].map((message) => [
+                message.id,
+                message,
+              ]),
+            );
+            const uniqueMessages = Array.from(map.values());
+            return { messages: uniqueMessages };
+          },
+          false,
+          "message/set",
+        ),
       updateUnreadCount: (amount: number) =>
         set(
           (state) => ({ unreadCount: state.unreadCount + amount }),
           false,
           "message/updateUnreadCount",
         ),
+      resetMessages: () =>
+        set({ messages: [] }, false, "message/resetMessages"),
     }),
     { name: "message-store" },
   ),

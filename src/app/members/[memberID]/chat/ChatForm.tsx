@@ -24,7 +24,6 @@ export default function ChatForm({
   });
 
   const onSubmit = async (data: ChatSchema) => {
-    console.log("Submitting message:", data);
     const result = await createMessage(params.memberID, data);
     if (result.status === "error") {
       toast.danger(result.error as string);

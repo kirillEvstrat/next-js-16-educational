@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useRef, useTransition, useEffect } from "react";
+import React, { useRef, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Button, Table, toast } from "@heroui/react";
+import { Button, Table, toast } from "@heroui/react";
 import { AiFillDelete } from "react-icons/ai";
 import Link from "next/link";
-import { deleteMessage } from "@/server/actions/messages";
+import {
+  deleteMessage,
+  getMessagesByContainer,
+} from "@/server/actions/messages";
 import PresenceAvatar from "@/components/PresenceAvatar";
 import { useMessageStore } from "@/lib/hooks/useMessageStore";
 import { useShallow } from "zustand/shallow";
@@ -29,35 +32,54 @@ type Props = {
   initialMessages: MessageRow[];
   activeContainer: "inbox" | "outbox";
   currentUserId: string;
+  initNextCursor?: string;
 };
 
 export default function MessagesTable({
   initialMessages,
   activeContainer,
   currentUserId,
+  initNextCursor,
 }: Props) {
   const counterpartLabel =
     activeContainer === "outbox" ? "Recipient" : "Sender";
   const [isDeleting, startDeleting] = useTransition();
+  const [isLoadingMore, startLoadingMore] = useTransition();
   const router = useRouter();
   const initMessages = useRef(initialMessages);
+  const [cursor, setCursor] = React.useState(initNextCursor);
 
-  const { set, remove, messages, updateUnreadCount } = useMessageStore(
-    useShallow((state) => ({
-      set: state.set,
-      remove: state.remove,
-      messages: state.messages,
-      updateUnreadCount: state.updateUnreadCount,
-    })),
-  );
+  const { set, remove, messages, updateUnreadCount, resetMessages } =
+    useMessageStore(
+      useShallow((state) => ({
+        set: state.set,
+        remove: state.remove,
+        messages: state.messages,
+        updateUnreadCount: state.updateUnreadCount,
+        resetMessages: state.resetMessages,
+      })),
+    );
+
+  const loadMore = useCallback(() => {
+    if (!cursor) return;
+
+    startLoadingMore(async () => {
+      const { messages: newMessages, nextCursor } =
+        await getMessagesByContainer(activeContainer, cursor);
+      set(newMessages);
+      setCursor(nextCursor);
+    });
+  }, [activeContainer, cursor, set]);
+
+  const hasMore = !!cursor;
 
   useEffect(() => {
     set(initMessages.current);
 
     return () => {
-      set([]);
+      resetMessages();
     };
-  }, [set, activeContainer]);
+  }, [set, activeContainer, resetMessages]);
 
   const handleDeleteMessage = (message: MessageDto) => {
     startDeleting(async () => {
@@ -85,7 +107,7 @@ export default function MessagesTable({
   }
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto p-4">
+    <div className="max-h-[60vh] min-h-0 overflow-y-auto p-4">
       <Table>
         <Table.Content aria-label="Messages table" className="min-w-full">
           <Table.Header>
@@ -174,6 +196,16 @@ export default function MessagesTable({
             })}
           </Table.Body>
         </Table.Content>
+        <Table.Footer>
+          <Button
+            variant="primary"
+            isDisabled={!hasMore}
+            isPending={isLoadingMore}
+            onClick={loadMore}
+          >
+            {hasMore ? "Load More" : "No More Messages"}
+          </Button>
+        </Table.Footer>
       </Table>
     </div>
   );
