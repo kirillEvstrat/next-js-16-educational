@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { headers } from "next/headers";
 import { nextCookies } from "better-auth/next-js";
+import { admin } from "better-auth/plugins/admin";
 import { User } from "../../generated/prisma/browser";
 import { prisma } from "./prisma";
 import { getEmailHtml, sendEmail } from "./mail";
@@ -105,7 +106,7 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()],
+  plugins: [admin(), nextCookies()],
 });
 
 export async function getCurrentUser() {
@@ -122,6 +123,24 @@ export async function requireAuthUser(): Promise<User> {
 
   if (!session?.user) {
     throw new Error("User is not authenticated");
+  }
+
+  return {
+    ...session.user,
+    image: session.user.image ?? null,
+  };
+}
+
+export async function requireAdminUser(): Promise<User> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error("User is not authenticated");
+  }
+  if (session.user.role !== "admin") {
+    throw new Error("Forbidden");
   }
 
   return {

@@ -2,6 +2,7 @@ import MemberImage from "@/components/MemberImage";
 import { getCurrentUser } from "@/lib/auth";
 import { getMemberPhotosById } from "@/server/actions/members";
 import PhotoButtons from "./PhotoButtons";
+import { Chip } from "@heroui/react";
 
 export default async function PhotosPage(
   props: PageProps<"/members/[memberID]/photos">,
@@ -17,6 +18,15 @@ export default async function PhotosPage(
       {photos?.map((photo) => (
         <div key={photo.id} className="relative">
           <MemberImage photo={photo} />
+          {isOwner && photo.status !== "approved" && (
+            <Chip
+              variant="primary"
+              color={photo.status === "rejected" ? "danger" : "warning"}
+              className="absolute bottom-2 left-2 z-50"
+            >
+              {photo.status === "rejected" ? "Rejected" : "Pending"}
+            </Chip>
+          )}
           {isOwner && <PhotoButtons photo={photo} user={currentUser} />}
         </div>
       ))}

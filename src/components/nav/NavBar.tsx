@@ -16,6 +16,7 @@ const navLinks = [
 
 export default async function NavBar() {
   const user = await getCurrentUser();
+  const isAdmin = user?.role === "admin";
 
   return (
     <header className="p-3 w-full fixed top-0 z-index-50 bg-gray-800 text-white">
@@ -31,6 +32,13 @@ export default async function NavBar() {
           {navLinks.map((link) => (
             <NavLink key={link.href} href={link.href} label={link.name} />
           ))}
+          {isAdmin && (
+            <NavLink
+              key="/admin/photos"
+              href="/admin/photos"
+              label="Admin Photos"
+            />
+          )}
         </div>
         <div className="flex items-center gap-2">
           {!!user ? (

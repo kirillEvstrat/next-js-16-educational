@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -8,17 +9,22 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
+  id              String    @id
+  name            String
+  email           String
+  emailVerified   Boolean   @default(false)
   profileComplete Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  member        Member?
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  member          Member?
+
+  role       String?
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   @@unique([email])
   @@map("user")
@@ -34,6 +40,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -75,33 +83,34 @@ model Verification {
 }
 
 model Member {
-  id String @id @default(cuid())
-  userID String @unique
-  name String 
-  gender String
-  dateOfBirth DateTime
-  created DateTime @default(now())
-  updated DateTime @default(now())
-  description String
-  city String
-  country String
-  image String?
-  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  photos Photo[]
-  sourceLikes Like[] @relation("SourceMemberLikes")
-  targetLikes Like[] @relation("TargetMemberLikes")
-  senderMessages Message[] @relation("sender")
+  id                String    @id @default(cuid())
+  userID            String    @unique
+  name              String
+  gender            String
+  dateOfBirth       DateTime
+  created           DateTime  @default(now())
+  updated           DateTime  @default(now())
+  description       String
+  city              String
+  country           String
+  image             String?
+  user              User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+  photos            Photo[]
+  sourceLikes       Like[]    @relation("SourceMemberLikes")
+  targetLikes       Like[]    @relation("TargetMemberLikes")
+  senderMessages    Message[] @relation("sender")
   recipientMessages Message[] @relation("recipient")
 }
 
 model Photo {
-  id String @id @default(cuid())
-  url String
+  id       String  @id @default(cuid())
+  url      String
   publicId String?
-  memberId String
-  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-}
+  status String @default("pending")
 
+  memberId String
+  member   Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
 
 model Like {
   sourceUserId String
@@ -113,14 +122,14 @@ model Like {
 }
 
 model Message {
-  id String @id @default(cuid())
-  text String
-  createdAt DateTime @default(now())
-  senderId String?
-  recipientId String?
-  sender Member? @relation("sender", fields: [senderId], references: [userID], onDelete: SetNull)
-  recipient Member? @relation("recipient", fields: [recipientId], references: [userID], onDelete: SetNull)
-  dateRead DateTime?
-  senderDeleted Boolean @default(false)
-  recipientDeleted Boolean @default(false)
+  id               String    @id @default(cuid())
+  text             String
+  createdAt        DateTime  @default(now())
+  senderId         String?
+  recipientId      String?
+  sender           Member?   @relation("sender", fields: [senderId], references: [userID], onDelete: SetNull)
+  recipient        Member?   @relation("recipient", fields: [recipientId], references: [userID], onDelete: SetNull)
+  dateRead         DateTime?
+  senderDeleted    Boolean   @default(false)
+  recipientDeleted Boolean   @default(false)
 }

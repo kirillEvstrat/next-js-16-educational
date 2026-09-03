@@ -21,6 +21,7 @@ export async function proxy(request: NextRequest) {
   const isPublic = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   const isCompleteProfileRoute = nextUrl.pathname === "/complete-profile";
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
 
   if (isPublic) {
     return NextResponse.next();
@@ -36,6 +37,13 @@ export async function proxy(request: NextRequest) {
 
   if (!session && !isPublic) {
     return NextResponse.redirect(new URL("/login", nextUrl));
+  }
+
+  if (isAdminRoute) {
+    if (!session || session.user.role !== "admin") {
+      return NextResponse.redirect(new URL("/members", nextUrl));
+    }
+    return NextResponse.next();
   }
 
   if (

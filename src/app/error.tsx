@@ -16,7 +16,9 @@ export default function ErrorPage({
 
   return (
     <div>
-      <h2>Something went wrong!</h2>
+      <h2>
+        Something went wrong! Custom Error Page, nearest error.tsx boundary
+      </h2>
       <button
         onClick={
           // Attempt to recover by re-fetching and re-rendering the segment
