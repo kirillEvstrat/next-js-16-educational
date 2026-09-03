@@ -1,14 +1,17 @@
 import z, { superRefine } from "zod";
+import { calculateAge } from "../utils";
+
+const requiredString = (fieldName: string, min = 1) =>
+  z
+    .string({ error: `${fieldName} is required` })
+    .min(min, { error: `${fieldName} is required` });
 
 export const registerSchema = z
   .object({
-    name: z.string().min(1, { error: "Name is required" }),
+    name: requiredString("Name"),
     email: z.email({ error: "Invalid email address" }),
-    password: z
-      .string()
-      .min(6, { error: "Password must be at least 6 characters long" }),
-
-    confirmPassword: z.string(),
+    password: requiredString("Password", 6),
+    confirmPassword: requiredString("Confirm Password", 6),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
@@ -20,4 +23,24 @@ export const registerSchema = z
     }
   });
 
+export const profileSchema = z.object({
+  gender: requiredString("Gender"),
+  description: requiredString("Description", 10),
+  city: requiredString("City", 1),
+  country: requiredString("Country", 1),
+  dateOfBirth: requiredString("Date of Birth").refine(
+    (val) => {
+      const age = calculateAge(val);
+      return age >= 18;
+    },
+    {
+      error: "You must be at least 18 years old",
+    },
+  ),
+});
+
+export const combinedRegisterSchema = registerSchema.and(profileSchema);
+
 export type RegisterSchema = z.infer<typeof registerSchema>;
+export type ProfileSchema = z.infer<typeof profileSchema>;
+export type CombinedRegisterSchema = z.infer<typeof combinedRegisterSchema>;

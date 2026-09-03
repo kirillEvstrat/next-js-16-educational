@@ -7,13 +7,16 @@ import {
   CardHeader,
   FieldError,
   Input,
+  Separator,
   TextField,
   toast,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
+import SocialLogin from "./SocialLogin";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -37,7 +40,11 @@ export default function LoginForm() {
           router.refresh();
         },
         onError: (ctx) => {
-          toast.danger(ctx.error.message);
+          if (ctx.error.status === 403) {
+            toast.danger("Email verification is required.");
+          } else {
+            toast.danger(ctx.error.message);
+          }
         },
       },
     );
@@ -86,6 +93,11 @@ export default function LoginForm() {
         <Button isPending={isSubmitting} type="submit" className={"w-full"}>
           Login
         </Button>
+        <Link href="/forgot-password" className="text-primary hover:underline">
+          Forgot Password?
+        </Link>
+        <Separator />
+        <SocialLogin />
       </form>
     </Card>
   );

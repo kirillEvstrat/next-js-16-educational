@@ -6,6 +6,8 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { ComponentProps } from "react";
 
+const FILTER_COOKIE = "memberFilters";
+
 type Props = {
   user: User;
 };
@@ -17,6 +19,7 @@ export const UserMenu = ({ user }: Props) => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          document.cookie = `${FILTER_COOKIE}=; max-age=0; path=/`;
           router.push("/");
           router.refresh();
         },
