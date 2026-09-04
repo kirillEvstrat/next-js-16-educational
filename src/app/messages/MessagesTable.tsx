@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useRef, useTransition, useEffect, useCallback } from "react";
+import React, {
+  useRef,
+  useTransition,
+  useEffect,
+  useCallback,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
-import { Button, Table, toast } from "@heroui/react";
+import { Button, Table, toast, useOverlayState } from "@heroui/react";
 import { AiFillDelete } from "react-icons/ai";
 import Link from "next/link";
 import {
@@ -14,6 +20,7 @@ import { useMessageStore } from "@/lib/hooks/useMessageStore";
 import { useShallow } from "zustand/shallow";
 import { MessageDto } from "@/lib/types";
 import { formatShortDateTime } from "@/lib/utils";
+import AppModal from "@/components/AppModal";
 
 type MessageRow = {
   id: string;
@@ -48,6 +55,10 @@ export default function MessagesTable({
   const router = useRouter();
   const initMessages = useRef(initialMessages);
   const [cursor, setCursor] = React.useState(initNextCursor);
+  const [selectedMessage, setSelectedMessage] = useState<MessageDto | null>(
+    null,
+  );
+  const deleteState = useOverlayState();
 
   const { set, remove, messages, updateUnreadCount, resetMessages } =
     useMessageStore(
@@ -94,6 +105,18 @@ export default function MessagesTable({
       }
       router.refresh();
     });
+  };
+
+  const openConfirModal = (messsage: MessageDto) => {
+    setSelectedMessage(messsage);
+    deleteState.open();
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedMessage) {
+      handleDeleteMessage(selectedMessage);
+    }
+    deleteState.close();
   };
 
   if (!messages.length) {
@@ -185,7 +208,7 @@ export default function MessagesTable({
                         size="sm"
                         variant="danger-soft"
                         aria-label="Delete message"
-                        onClick={() => handleDeleteMessage(message)}
+                        onClick={() => openConfirModal(message)}
                       >
                         <AiFillDelete size={14} />
                       </Button>
@@ -207,6 +230,22 @@ export default function MessagesTable({
           </Button>
         </Table.Footer>
       </Table>
+      <AppModal
+        state={deleteState}
+        title="Confirm Delete"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => deleteState.close()}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        Are you sure you want to delete this message?
+      </AppModal>
     </div>
   );
 }

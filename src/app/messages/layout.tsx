@@ -2,11 +2,8 @@ import React from "react";
 import { Card, Separator } from "@heroui/react";
 import MessagesNav from "./MessagesNav";
 import MessagesTitle from "./MessagesTitle";
-import { getMessageContainerCounts } from "@/server/actions/messages";
 
 export default async function MessagesLayout(props: LayoutProps<"/messages">) {
-  const counts = await getMessageContainerCounts();
-
   return (
     <div className="grid h-[80vh] grid-cols-12 gap-5">
       <div className="col-span-3">

@@ -138,7 +138,7 @@ export async function markMessagesAsRead(
 export async function getMessagesByContainer(
   container: string = "inbox",
   cursor?: string,
-  limit = 2,
+  limit = 10,
 ) {
   try {
     const user = await requireAuthUser();
