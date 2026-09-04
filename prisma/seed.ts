@@ -10,6 +10,7 @@ async function seedAdmin() {
       email: "admin@test.com",
       password: "Kirill1998",
       name: "Admin",
+      profileComplete: true,
     },
   });
 
@@ -31,6 +32,7 @@ async function seedUsers() {
         password: "Kirill1998",
         name: members.name,
         image: members.image,
+        profileComplete: true,
       },
     });
 

@@ -3,10 +3,18 @@
 import { authClient } from "@/lib/auth-client";
 import { Button, Card, Spinner } from "@heroui/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { MdOutlineMarkEmailRead } from "react-icons/md";
 
 export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const callbackURL = searchParams.get("callbackURL") ?? "/members";

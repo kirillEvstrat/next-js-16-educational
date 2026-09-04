@@ -1,5 +1,8 @@
 {
   "chat.tools.terminal.autoApprove": {
-    "npx tsc": true
+    "npx tsc": true,
+    "npx ctx7@latest": true,
+    "npx openspec": true,
+    "Set-Content": true
   }
 }

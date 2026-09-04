@@ -2,9 +2,14 @@
 import { authClient } from "@/lib/auth-client";
 import { useNotification } from "@/lib/hooks/useNotification";
 import { usePresense } from "@/lib/hooks/usePresence";
-import React, { useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef } from "react";
 import { useMessageStore } from "@/lib/hooks/useMessageStore";
 import { getUnreadMessageCount } from "@/server/actions/messages";
+
+function NotificationProvider({ userId }: { userId: string | null }) {
+  useNotification(userId);
+  return null;
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const session = authClient.useSession();
@@ -22,7 +27,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, [userId, updateUnreadCount]);
 
   usePresense(userId); // Pass the userId to the usePresense hook
-  useNotification(userId); // Pass the userId to the useNotification hook
 
-  return <>{children}</>;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <NotificationProvider userId={userId} />
+      </Suspense>
+      {children}
+    </>
+  );
 }

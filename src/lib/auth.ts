@@ -113,7 +113,20 @@ export async function getCurrentUser() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  return session?.user;
+  return session?.user ? normalizeUser(session.user) : undefined;
+}
+
+function normalizeUser(
+  user: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"],
+): User {
+  return {
+    ...user,
+    image: user.image ?? null,
+    role: user.role ?? null,
+    banned: user.banned ?? null,
+    banReason: user.banReason ?? null,
+    banExpires: user.banExpires ?? null,
+  };
 }
 
 export async function requireAuthUser(): Promise<User> {
@@ -125,10 +138,7 @@ export async function requireAuthUser(): Promise<User> {
     throw new Error("User is not authenticated");
   }
 
-  return {
-    ...session.user,
-    image: session.user.image ?? null,
-  };
+  return normalizeUser(session.user);
 }
 
 export async function requireAdminUser(): Promise<User> {
@@ -143,8 +153,5 @@ export async function requireAdminUser(): Promise<User> {
     throw new Error("Forbidden");
   }
 
-  return {
-    ...session.user,
-    image: session.user.image ?? null,
-  };
+  return normalizeUser(session.user);
 }

@@ -1,7 +1,6 @@
 import React from "react";
 import { requireAdminUser } from "@/lib/auth";
 import { getPendingPhotos } from "@/server/actions/admin";
-import MemberImage from "@/components/MemberImage";
 import ModerationCard from "./ModerationCard";
 
 export default async function AdminPhotosPage() {
