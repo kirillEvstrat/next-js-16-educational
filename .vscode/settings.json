@@ -3,6 +3,9 @@
     "npx tsc": true,
     "npx ctx7@latest": true,
     "npx openspec": true,
-    "Set-Content": true
+    "Set-Content": true,
+    "git remote": true,
+    "git config": true,
+    "git rev-parse": true
   }
 }
