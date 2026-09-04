@@ -5,6 +5,7 @@ import Filters from "./Filters";
 import MembersPagination from "./MembersPagination";
 import { UserFilters } from "@/lib/types";
 import EmptyState from "./EmptyState";
+import React, { Suspense } from "react";
 
 export default async function MembersPage({
   searchParams,
@@ -16,7 +17,7 @@ export default async function MembersPage({
   const likeIds = (await fetchCurrentUserLikeIds()) ?? [];
 
   return (
-    <>
+    <Suspense fallback={null}>
       {!members?.length ? (
         <EmptyState />
       ) : (
@@ -30,6 +31,6 @@ export default async function MembersPage({
           <MembersPagination totalCount={totalCount} />
         </div>
       )}
-    </>
+    </Suspense>
   );
 }

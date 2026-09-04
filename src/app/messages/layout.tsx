@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Card, Separator } from "@heroui/react";
 import MessagesNav from "./MessagesNav";
 import MessagesTitle from "./MessagesTitle";
@@ -13,7 +13,9 @@ export default async function MessagesLayout(props: LayoutProps<"/messages">) {
           </Card.Header>
           <Separator />
           <Card.Content className="p-0">
-            <MessagesNav />
+            <Suspense fallback={null}>
+              <MessagesNav />
+            </Suspense>
           </Card.Content>
         </Card>
       </div>
@@ -21,7 +23,9 @@ export default async function MessagesLayout(props: LayoutProps<"/messages">) {
       <div className="col-span-9 min-h-0">
         <Card className="mt-10 flex h-[80vh] w-full flex-col overflow-hidden">
           <Card.Header className="shrink-0">
-            <MessagesTitle />
+            <Suspense fallback={null}>
+              <MessagesTitle />
+            </Suspense>
           </Card.Header>
           <Separator className="shrink-0" />
           <Card.Content className="flex-1 min-h-0 overflow-hidden p-0">

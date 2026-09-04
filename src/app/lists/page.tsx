@@ -2,7 +2,7 @@ import {
   fetchCurrentUserLikeIds,
   fetchLikedMembers,
 } from "@/server/actions/likes";
-import React from "react";
+import React, { Suspense } from "react";
 import { ListTabs } from "./ListTabs";
 
 export default async function page(props: PageProps<"/lists">) {
@@ -13,7 +13,9 @@ export default async function page(props: PageProps<"/lists">) {
 
   return (
     <div className="mx-10">
-      <ListTabs members={members} likeIds={likeIds} />
+      <Suspense fallback={null}>
+        <ListTabs members={members} likeIds={likeIds} />
+      </Suspense>
     </div>
   );
 }
