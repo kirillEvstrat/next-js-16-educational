@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getMemberById } from "@/server/actions/members";
+import { getMemberById } from "@/server/data/members";
 import { notFound } from "next/navigation";
 import React from "react";
 import ProfileForm from "./ProfileForm";

@@ -2,10 +2,10 @@ Read [theory.md](./theory.md) before starting any group below -- it holds the im
 
 ## 1. Foundations: Cache Components & Rendering Model (A1, A2)
 
-- [ ] 1.1 Theory: read theory.md Section A1-A2 + `01-getting-started/08-caching.md`, `02-guides/migrating-to-cache-components.md`, `02-guides/rendering-philosophy.md`; verify by writing a 1-paragraph explanation of "static/dynamic as a spectrum" in your own words.
-- [ ] 1.2 Enable `cacheComponents: true` in `next.config.ts` on a throwaway branch and observe the dev-time errors Next.js raises for uncached/runtime data access on `/members`; verify by pasting the exact error output.
-- [ ] 1.3 Ideate: propose at least 3 candidate exercises for `'use cache'`/`cacheLife`/`cacheTag`/`updateTag` -- at least one converting an existing read (e.g. `getMembers`/`getMemberById` in [members.ts](src/server/actions/members.ts)) and at least one standalone playground feature (any cached widget unrelated to the dating-app domain) that exercises granular caching + on-demand tag invalidation; verify with a short written list, one line of trade-offs per option.
-- [ ] 1.4 Build (separate chat): implement the chosen option(s) from 1.3; verify read-your-own-writes via `updateTag` and confirm untouched tags keep serving cached data unchanged.
+- [x] 1.1 Theory: read theory.md Section A1-A2 + `01-getting-started/08-caching.md`, `02-guides/migrating-to-cache-components.md`, `02-guides/rendering-philosophy.md`; verify by writing a 1-paragraph explanation of "static/dynamic as a spectrum" in your own words.
+- [x] 1.2 Enable `cacheComponents: true` in `next.config.ts` on a throwaway branch and observe the dev-time errors Next.js raises for uncached/runtime data access on `/members`; verify by pasting the exact error output.
+- [x] 1.3 Ideate: propose at least 3 candidate exercises for `'use cache'`/`cacheLife`/`cacheTag`/`updateTag` -- at least one converting an existing read (e.g. `getMembers`/`getMemberById` in [members.ts](src/server/actions/members.ts)) and at least one standalone playground feature (any cached widget unrelated to the dating-app domain) that exercises granular caching + on-demand tag invalidation; verify with a short written list, one line of trade-offs per option.
+- [x] 1.4 Build (separate chat): implement the chosen option(s) from 1.3; verify read-your-own-writes via `updateTag` and confirm untouched tags keep serving cached data unchanged.
 
 ## 2. Caching & Revalidation Nuances (B3, B4, B5)
 

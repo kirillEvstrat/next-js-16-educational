@@ -1,5 +1,5 @@
 import React from "react";
-import { getMemberById } from "@/server/actions/members";
+import { getMemberById } from "@/server/data/members";
 import { notFound } from "next/navigation";
 import { buttonVariants, Card, Separator } from "@heroui/react";
 import Image from "next/image";

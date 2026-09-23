@@ -6,8 +6,7 @@ import {
   type ProfileEditSchema,
 } from "@/lib/schema/profileEditSchema";
 import { ActionResults, UserFilters, PaginatedResponce } from "@/lib/types";
-import { revalidatePath } from "next/cache";
-import { cache } from "react";
+import { revalidatePath, updateTag } from "next/cache";
 import { Member, Photo } from "../../../generated/prisma/client";
 import { cloudinary } from "@/lib/cloudinary";
 import { addYears } from "date-fns";
@@ -66,16 +65,6 @@ export async function getMembers(
   }
 }
 
-export const getMemberById = cache(async (memberID: string) => {
-  try {
-    return prisma.member.findUnique({
-      where: { userID: memberID },
-    });
-  } catch (error) {
-    console.error("Error fetching member by ID:", error);
-  }
-});
-
 export async function updateProfile(
   data: ProfileEditSchema,
 ): Promise<ActionResults<Member>> {
@@ -98,7 +87,7 @@ export async function updateProfile(
     });
 
     revalidatePath("/members");
-    revalidatePath(`/members/${member.userID}`);
+    updateTag(`member:${member.userID}`);
 
     return { status: "success", data: member };
   } catch (error) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./lib/auth";
 import { headers } from "next/headers";
 
-const publicRoutes = ["/"];
+const publicRoutes = ["/", "/playground/cache"];
 
 const authRoutes = [
   "/login",

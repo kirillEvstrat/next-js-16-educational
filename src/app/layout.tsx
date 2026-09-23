@@ -3,6 +3,7 @@ import "./globals.css";
 import NavBar from "@/components/nav/NavBar";
 import { Toast } from "@heroui/react";
 import Providers from "@/components/Providers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "next",
@@ -19,7 +20,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-100">
         <Providers>
           <Toast.Provider />
-          <NavBar />
+          <Suspense fallback={null}>
+            <NavBar />
+          </Suspense>
           <main className="container mx-auto mt-18">{children}</main>
         </Providers>
       </body>
