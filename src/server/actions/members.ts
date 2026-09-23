@@ -68,35 +68,30 @@ export async function getMembers(
 export async function updateProfile(
   data: ProfileEditSchema,
 ): Promise<ActionResults<Member>> {
-  try {
-    const user = await requireAuthUser();
-    const validated = profileEditSchema.safeParse(data);
+  const user = await requireAuthUser();
+  const validated = profileEditSchema.safeParse(data);
 
-    if (!validated.success) {
-      return { status: "error", error: validated.error.issues };
-    }
-
-    const member = await prisma.member.update({
-      where: { userID: user.id },
-      data: {
-        ...validated.data,
-        user: {
-          update: { name: data.name },
-        },
-      },
-    });
-
-    revalidatePath("/members");
-    updateTag(`member:${member.userID}`);
-
-    return { status: "success", data: member };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { status: "error", error: error.message };
-    } else {
-      return { status: "error", error: "An unknown error occurred" };
-    }
+  // Expected error: bad input is a normal return value, not a throw.
+  if (!validated.success) {
+    return { status: "error", error: validated.error.issues };
   }
+
+  // Anything the DB call throws from here is an uncaught bug -- let it
+  // propagate to the nearest error.tsx instead of masking it as a toast.
+  const member = await prisma.member.update({
+    where: { userID: user.id },
+    data: {
+      ...validated.data,
+      user: {
+        update: { name: data.name },
+      },
+    },
+  });
+
+  revalidatePath("/members");
+  updateTag(`member:${member.userID}`);
+
+  return { status: "success", data: member };
 }
 
 export async function getMemberPhotosById(userId: string) {

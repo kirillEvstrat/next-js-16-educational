@@ -21,15 +21,15 @@ Read [theory.md](./theory.md) before starting any group below -- it holds the im
 
 ## 4. Expected vs. Uncaught Error Model (B2)
 
-- [ ] 4.1 Theory: read theory.md Section B2 + `01-getting-started/10-error-handling.md`, `04-functions/catchError.md`; verify by writing down the throw-vs-return rule and explaining the `redirect()`-inside-`try/catch` trap.
-- [ ] 4.2 Ideate: propose at least 3 candidates for applying `useActionState`/expected-error modeling -- at least one existing form (e.g. `updateProfile` in [members.ts](src/server/actions/members.ts)) and at least one standalone action built purely to demonstrate the `redirect()`/`try-catch` trap (trigger it broken, then fix it); verify with a short list.
-- [ ] 4.3 Build (separate chat): implement the chosen option(s); verify the UI shows field-level errors without a full reload, and the deliberately-broken redirect/try-catch case is demonstrated and then fixed.
+- [x] 4.1 Theory: read theory.md Section B2 + `01-getting-started/10-error-handling.md`, `04-functions/catchError.md`; verify by writing down the throw-vs-return rule and explaining the `redirect()`-inside-`try/catch` trap.
+- [x] 4.2 Ideate: propose at least 3 candidates for applying `useActionState`/expected-error modeling -- at least one existing form (e.g. `updateProfile` in [members.ts](src/server/actions/members.ts)) and at least one standalone action built purely to demonstrate the `redirect()`/`try-catch` trap (trigger it broken, then fix it); verify with a short list.
+- [x] 4.3 Build (separate chat): implement the chosen option(s); verify the UI shows field-level errors without a full reload, and the deliberately-broken redirect/try-catch case is demonstrated and then fixed.
 
 ## 5. Request-Time APIs: Cookies & Proxy Nuances (B6, B9)
 
-- [ ] 5.1 Theory: read theory.md Section B6, Section B9 + `04-functions/cookies.md`, `03-file-conventions/proxy.md`; verify by explaining why `cookies().set()` only works in Server Functions/Route Handlers and why `src/proxy.ts` cannot call it.
-- [ ] 5.2 Ideate: propose at least 3 small cookie-driven features exercising the read-in-component/write-in-action boundary -- at least one adapting an existing view (e.g. a grid/list toggle on `/members`) and at least one standalone demo (e.g. a visit counter, a theme switch); verify with a short list.
-- [ ] 5.3 Build (separate chat): implement the chosen option(s); verify a single round trip (network tab) shows the action's response carrying both the cookie write and the re-rendered UI.
+- [x] 5.1 Theory: read theory.md Section B6, Section B9 + `04-functions/cookies.md`, `03-file-conventions/proxy.md`; verify by explaining why `cookies().set()` only works in Server Functions/Route Handlers and why `src/proxy.ts` cannot call it.
+- [x] 5.2 Ideate: propose at least 3 small cookie-driven features exercising the read-in-component/write-in-action boundary -- at least one adapting an existing view (e.g. a grid/list toggle on `/members`) and at least one standalone demo (e.g. a visit counter, a theme switch); verify with a short list.
+- [x] 5.3 Build (separate chat): implement the chosen option(s); verify a single round trip (network tab) shows the action's response carrying both the cookie write and the re-rendered UI.
 
 ## 6. Advanced Routing: Parallel & Intercepting Routes (A3)
 
