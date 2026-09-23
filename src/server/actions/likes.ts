@@ -4,35 +4,25 @@ import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher";
 import { revalidatePath } from "next/cache";
 
-export async function toggleLikeMember(targetUserId: string, isLiked: boolean) {
-  try {
-    const user = await requireAuthUser();
+export async function toggleLikeMember(targetUserId: string) {
+  const user = await requireAuthUser();
 
-    if (isLiked) {
-      await prisma.like.delete({
-        where: {
-          sourceUserId_targetUserId: {
-            sourceUserId: user.id,
-            targetUserId,
-          },
-        },
-      });
-    } else {
-      await prisma.like.create({
-        data: {
-          sourceUserId: user.id,
-          targetUserId,
-        },
-      });
-
-      await pusherServer.trigger("private-" + targetUserId, "like:new", user);
-    }
-
-    revalidatePath("/members");
-    revalidatePath(`/members/${targetUserId}`);
-  } catch (error) {
-    console.error("Error toggling like member:", error);
+  if (targetUserId === user.id) {
+    throw new Error("Cannot like yourself");
   }
+
+  const key = { sourceUserId: user.id, targetUserId };
+
+  // Current state is read from the DB, not taken from the caller.
+  const { count } = await prisma.like.deleteMany({ where: key });
+
+  if (count === 0) {
+    await prisma.like.create({ data: key });
+    await pusherServer.trigger("private-" + targetUserId, "like:new", user);
+  }
+
+  revalidatePath("/members");
+  revalidatePath(`/members/${targetUserId}`);
 }
 
 export async function fetchCurrentUserLikeIds() {

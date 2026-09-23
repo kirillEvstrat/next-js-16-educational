@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./lib/auth";
 import { headers } from "next/headers";
 
-const publicRoutes = ["/", "/playground/cache"];
+const publicRoutes = ["/"];
 
 const authRoutes = [
   "/login",
@@ -18,7 +18,9 @@ export async function proxy(request: NextRequest) {
     headers: await headers(),
   });
 
-  const isPublic = publicRoutes.includes(nextUrl.pathname);
+  const isPublic =
+    publicRoutes.includes(nextUrl.pathname) ||
+    nextUrl.pathname.startsWith("/playground");
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   const isCompleteProfileRoute = nextUrl.pathname === "/complete-profile";
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");

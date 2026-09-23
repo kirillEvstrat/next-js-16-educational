@@ -16,7 +16,7 @@ export default function LikeButton({ targetUserId, hasLiked }: Props) {
     e.preventDefault();
 
     startTransition(async () => {
-      await toggleLikeMember(targetUserId, hasLiked);
+      await toggleLikeMember(targetUserId);
     });
   };
 

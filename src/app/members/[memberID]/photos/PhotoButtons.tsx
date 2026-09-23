@@ -20,13 +20,13 @@ export default function PhotoButtons({ photo, user }: Props) {
   const onSetMain = (photo: Photo) => {
     if (!canSetMain) return;
     startMainTransition(() => {
-      setMainImage(photo);
+      setMainImage(photo.id);
     });
   };
 
   const onDelete = (photo: Photo) => {
     startDeleteTransition(() => {
-      deleteImage(photo);
+      deleteImage(photo.id);
     });
   };
 

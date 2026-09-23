@@ -7,7 +7,7 @@ import {
 } from "@/lib/schema/profileEditSchema";
 import { ActionResults, UserFilters, PaginatedResponce } from "@/lib/types";
 import { revalidatePath, updateTag } from "next/cache";
-import { Member, Photo } from "../../../generated/prisma/client";
+import { Member } from "../../../generated/prisma/client";
 import { cloudinary } from "@/lib/cloudinary";
 import { addYears } from "date-fns";
 import { User } from "../../../generated/prisma/browser";
@@ -139,61 +139,65 @@ export async function addImage(url: string, publicId: string) {
   }
 }
 
-export async function setMainImage(photo: Photo) {
-  try {
-    const user = await requireAuthUser();
+export async function setMainImage(photoId: string) {
+  const user = await requireAuthUser();
 
-    if (photo.status !== "approved") {
-      throw new Error("Only approved photos can be used as main");
-    }
+  // Status and URL must come from the DB row, never from the caller.
+  const photo = await prisma.photo.findFirst({
+    where: { id: photoId, status: "approved", member: { userID: user.id } },
+  });
 
-    const result = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        image: photo.url,
-        member: {
-          update: {
-            image: photo.url,
-          },
+  if (!photo) {
+    throw new Error("Photo not found, not yours, or not approved");
+  }
+
+  const result = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      image: photo.url,
+      member: {
+        update: {
+          image: photo.url,
         },
       },
-    });
+    },
+  });
 
-    revalidatePath(`/members/${user.id}/photos`);
-    revalidatePath(`/members/${user.id}`);
-    revalidatePath(`/members`);
+  revalidatePath(`/members/${user.id}/photos`);
+  revalidatePath(`/members/${user.id}`);
+  revalidatePath(`/members`);
 
-    return result;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
+  return result;
 }
 
-export async function deleteImage(photo: Photo) {
-  try {
-    const user = await requireAuthUser();
+export async function deleteImage(photoId: string) {
+  const user = await requireAuthUser();
 
-    if (photo.publicId) {
-      await cloudinary.v2.uploader.destroy(photo.publicId);
-    }
+  const photo = await prisma.photo.findFirst({
+    where: { id: photoId, member: { userID: user.id } },
+  });
 
-    const member = await prisma.member.update({
-      where: { userID: user.id },
-      data: {
-        photos: {
-          delete: { id: photo.id },
-        },
-      },
-    });
-
-    revalidatePath(`/members/${member.userID}/photos`);
-
-    return member;
-  } catch (error) {
-    console.log(error);
-    throw error;
+  if (!photo) {
+    throw new Error("Photo not found or not yours");
   }
+
+  const member = await prisma.member.update({
+    where: { userID: user.id },
+    data: {
+      photos: {
+        delete: { id: photo.id },
+      },
+    },
+  });
+
+  // Irreversible third-party call goes last, after ownership is proven.
+  if (photo.publicId) {
+    await cloudinary.v2.uploader.destroy(photo.publicId);
+  }
+
+  revalidatePath(`/members/${member.userID}/photos`);
+
+  return member;
 }
 
 export async function updateLastActive() {

@@ -9,15 +9,15 @@ Read [theory.md](./theory.md) before starting any group below -- it holds the im
 
 ## 2. Caching & Revalidation Nuances (B3, B4, B5)
 
-- [ ] 2.1 Theory: read theory.md Section B3-B5 + `revalidatePath.md`, `revalidateTag.md`, `updateTag.md`, `fetch.md`, `how-revalidation-works.md`; verify by producing a comparison table (consistency guarantee, blocks current response?, scope) for the four invalidation APIs.
-- [ ] 2.2 Ideate: propose at least 3 candidates for practicing tag-based vs. path-based invalidation -- at least one replacing an existing `revalidatePath` call (e.g. in [likes.ts](src/server/actions/likes.ts)) and at least one standalone feature that visibly demonstrates stale-while-revalidate vs. immediate expiry side by side; verify with a short list including trade-offs.
-- [ ] 2.3 Build (separate chat): implement the chosen option(s); verify via network/dev logs that the expected consistency behavior occurs (e.g. the documented "lowest `revalidate` value wins" rule when the same URL is fetched twice with different values in one route).
+- [x] 2.1 Theory: read theory.md Section B3-B5 + `revalidatePath.md`, `revalidateTag.md`, `updateTag.md`, `fetch.md`, `how-revalidation-works.md`; verify by producing a comparison table (consistency guarantee, blocks current response?, scope) for the four invalidation APIs.
+- [x] 2.2 Ideate: propose at least 3 candidates for practicing tag-based vs. path-based invalidation -- at least one replacing an existing `revalidatePath` call (e.g. in [likes.ts](src/server/actions/likes.ts)) and at least one standalone feature that visibly demonstrates stale-while-revalidate vs. immediate expiry side by side; verify with a short list including trade-offs.
+- [x] 2.3 Build (separate chat): implement the chosen option(s); verify via network/dev logs that the expected consistency behavior occurs (e.g. the documented "lowest `revalidate` value wins" rule when the same URL is fetched twice with different values in one route).
 
 ## 3. Server Action Security Model (B1)
 
-- [ ] 3.1 Theory: read theory.md Section B1 + `02-guides/server-actions.md` (Security section), `02-guides/data-security.md` (mutating-data section); verify by listing the framework-level protections (CSRF origin check, body size limit, closure encryption) vs. what the app must still do itself.
-- [ ] 3.2 Ideate: propose at least 3 candidate mutations to harden or design -- at least one existing action (e.g. `toggleLikeMember` in [likes.ts](src/server/actions/likes.ts), which currently trusts a client-supplied `isLiked` boolean) and at least one standalone action built specifically to demonstrate an ownership-bypass vulnerability and its fix; verify with a short writeup of the exploit + fix for each candidate.
-- [ ] 3.3 Build (separate chat): implement the chosen fix(es); verify with a manual test (e.g. rapid double-click, or a forged request with someone else's row id) proving the vulnerability is closed.
+- [x] 3.1 Theory: read theory.md Section B1 + `02-guides/server-actions.md` (Security section), `02-guides/data-security.md` (mutating-data section); verify by listing the framework-level protections (CSRF origin check, body size limit, closure encryption) vs. what the app must still do itself.
+- [x] 3.2 Ideate: propose at least 3 candidate mutations to harden or design -- at least one existing action (e.g. `toggleLikeMember` in [likes.ts](src/server/actions/likes.ts), which currently trusts a client-supplied `isLiked` boolean) and at least one standalone action built specifically to demonstrate an ownership-bypass vulnerability and its fix; verify with a short writeup of the exploit + fix for each candidate.
+- [x] 3.3 Build (separate chat): implement the chosen fix(es); verify with a manual test (e.g. rapid double-click, or a forged request with someone else's row id) proving the vulnerability is closed.
 
 ## 4. Expected vs. Uncaught Error Model (B2)
 
